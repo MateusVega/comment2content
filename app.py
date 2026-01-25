@@ -1,8 +1,16 @@
+from datetime import date, timedelta
+import os
+from dotenv import load_dotenv
 import time
 from tools import get_comments, extract_video_id
-from flask import Flask, render_template, request, url_for, Response, stream_with_context
+from flask import Flask, render_template, request, url_for, session, abort
+
+load_dotenv()
 
 app = Flask(__name__)
+
+app.secret_key = os.getenv("SECRET_KEY_SK")
+app.permanent_session_lifetime = timedelta(days=1)
 
 @app.route("/")
 def index():
@@ -10,6 +18,18 @@ def index():
 
 @app.route("/process_api", methods=["POST"])
 def process_api():
+    """session.permanent = True
+    today = date.today().isoformat()
+    
+    if session.get("day") != today:
+        session["day"] = today
+        session["count"] = 0
+
+    session["count"] += 1
+
+    if session["count"] > 3:
+        abort(429)"""
+
     started_at = time.time()
     data = request.get_json()
     url = data.get("url")
@@ -18,17 +38,18 @@ def process_api():
     if not video_id:
         return {"error": "Invalid YouTube URL"}, 400
 
-    comments, video_id, title, channel = get_comments(video_id, max_comments=350)
+    comments, video_id, title, channel, total_comments_fetched = get_comments(video_id, max_comments=350)
 
     elapsed = round(time.time() - started_at, 2)
-    
+
     return {
         "count": len(comments),
         "comments": comments,
         "video_id": video_id,
         "title": title,
         "channel": channel,
-        "time_spent" : elapsed
+        "time_spent": elapsed,
+        "total_comments_fetched": total_comments_fetched
     }
 
 if __name__ == "__main__":

@@ -46,6 +46,8 @@
 						<p id="video_title" class="text-lg font-semibold"></p>
 						<p id="channel_title" class="text-red-600 font-bold"></p>
 						<p id="time_spent" class="text-sm text-gray-500"></p>
+						<p id="total_comments_fetched" class="text-sm text-gray-500"></p>
+						<p id="ideas_found" class="text-sm text-gray-500"></p>
 					</div>
 				</section>
 
@@ -99,6 +101,8 @@
 				document.getElementById("video_title").textContent = data.title;
 				document.getElementById("channel_title").textContent = data.channel;
 				document.getElementById("time_spent").textContent = `Time spent: ${data.time_spent} seconds.`;
+				document.getElementById("total_comments_fetched").textContent = `Total comments fetched: ${data.total_comments_fetched}.`;
+				document.getElementById("ideas_found").textContent = `Ideas found: ${data.count}.`;
 			}
 
 			function fetchResults(url_value) {

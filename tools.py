@@ -56,7 +56,7 @@ def fetch_comments(video_id, max_comments=200):
         print(f"YouTube API error: {e}")
         return []
 
-    return comments
+    return comments, len(comments)
 
 def fetch_video_info(video_id):
     request = youtube.videos().list(
@@ -178,9 +178,10 @@ def filter_comments(comments):
 
 # Cache Comments
 
-def caching_comments_with_json(video_id, comments):
+def caching_comments_with_json(video_id, comments, total_comments_fetched):
     cache_comments = {
         "cached_at" : time.time(),
+        "total_comments_fetched" : total_comments_fetched,
         "data" : comments
     }
 
@@ -196,28 +197,28 @@ def video_cached(video_id):
 def get_cached_video(video_id):
     path = os.path.join(cwd, "static", "videos_cache", f"{video_id}.json")
     if not os.path.exists(path):
-        return None
+        return None, None
 
     with open(path, "r") as f:
         payload = json.load(f)
 
     if time.time() - payload["cached_at"] > CACHE_TTL:
         os.remove(path)
-        return None
+        return None, None
 
-    return payload["data"]
+    return payload["data"], payload["total_comments_fetched"]
 
 # Main function
 
 def get_comments(video_id, max_comments):
     title, channel = fetch_video_info(video_id)
 
-    cached = get_cached_video(video_id)
+    cached, total_comments_fetched = get_cached_video(video_id)
     if cached is not None:
-        return cached, video_id, title, channel
+        return cached, video_id, title, channel, total_comments_fetched
 
-    raw_comments = fetch_comments(video_id, max_comments=max_comments)
+    raw_comments, total_comments_fetched = fetch_comments(video_id, max_comments=max_comments)
     result = filter_comments(raw_comments)
-    caching_comments_with_json(video_id, result)
+    caching_comments_with_json(video_id, result, total_comments_fetched)
 
-    return result, video_id, title, channel
+    return result, video_id, title, channel, total_comments_fetched
