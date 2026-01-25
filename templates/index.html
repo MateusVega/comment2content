@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}" />
+		<link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon_io/apple-touch-icon.png') }}" />
+		<link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='favicon_io/android-chrome-192x192.png') }}" />
+		<link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='favicon_io/android-chrome-512x512.png') }}" />
+		<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon_io/favicon-32x32.png') }}" />
+		<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon_io/favicon-16x16.png') }}" />
+		<link rel="manifest" href="{{ url_for('static', filename='favicon_io/site.webmanifest') }}" />
+		<link rel="icon" href="{{ url_for('static', filename='favicon_io/favicon.ico') }}" type="image/x-icon" />
+		<title>Comment2Content</title>
+	</head>
+	<body class="min-h-screen bg-gradient-to-br from-red-50 to-gray-100 flex items-center justify-center">
+		<main class="w-full max-w-6xl bg-white rounded-2xl shadow-xl p-10 flex flex-col gap-10">
+			<header class="flex flex-col gap-4 text-center">
+				<h1 class="text-5xl font-extrabold text-red-600">Discover what your subscribers want to watch</h1>
+				<p class="text-gray-600 text-lg">Input the <strong>URL</strong> of your video and analyze what your audience really wants based on YouTube comments.</p>
+			</header>
+			<section class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+				<input
+					class="w-full sm:w-2/3 border border-gray-300 rounded-xl px-4 py-3 text-center focus:outline-none focus:ring-2 focus:ring-red-500 transition"
+					type="text"
+					id="url"
+					autocomplete="off"
+					placeholder="https://www.youtube.com/watch?v=..."
+					value="https://www.youtube.com/watch?v=th5_9woFJmk"
+				/>
+				<button onclick="submitForm()" class="bg-red-600 hover:bg-red-700 active:scale-95 transition text-white font-bold px-8 py-3 rounded-xl shadow-md">Discover</button>
+			</section>
+			<section id="status" class="flex flex-col gap-3">
+				<div class="w-full bg-gray-200 rounded-full overflow-hidden h-6">
+					<div id="progress-done" class="h-full w-0 bg-red-600 text-white text-sm font-bold flex items-center justify-center transition-all duration-500"></div>
+				</div>
+				<p class="text-center text-gray-500 animate-pulse">Analyzing...</p>
+			</section>
+			<section id="result" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+				<section class="flex flex-col gap-4">
+					<h2 class="text-3xl font-bold text-red-600">Summary</h2>
+
+					<iframe class="w-full aspect-video rounded-xl shadow" id="iframe" src="" title="YouTube video player" frameborder="0" allowfullscreen> </iframe>
+
+					<div class="bg-gray-50 rounded-xl p-4 shadow-sm flex flex-col gap-1">
+						<p id="video_title" class="text-lg font-semibold"></p>
+						<p id="channel_title" class="text-red-600 font-bold"></p>
+						<p id="time_spent" class="text-sm text-gray-500"></p>
+					</div>
+				</section>
+
+				<section id="comments_section" class="flex flex-col gap-4 bg-gray-50 rounded-xl p-6 shadow-sm">
+					<h2 class="text-3xl font-bold text-red-600">Suggestions</h2>
+					<p class="text-gray-600">Comments: <span id="comments_amount" class="font-bold text-red-600">0</span></p>
+					<ul id="comments" class="flex flex-col gap-4"></ul>
+				</section>
+			</section>
+		</main>
+	</body>
+
+	<script>
+		const url_value = document.getElementById("url").value;
+		var progress = 0;
+
+		function update_bar(new_progress) {
+			const bar = document.getElementById("progress-done");
+
+			const interval = setInterval(() => {
+				if (progress >= new_progress || progress >= 100) {
+					bar.classList.add("rounded-lg");
+					clearInterval(interval);
+				} else {
+					progress++;
+					bar.style.width = progress + "%";
+					bar.textContent = progress + "%";
+				}
+			});
+		}
+
+		function show_comments(data) {
+			const comments_section_obj = document.getElementById("comments_section");
+			const comments_amont_obj = document.getElementById("comments_amount");
+			const comments_obj = document.getElementById("comments");
+
+			const comments = data.comments;
+
+			comments_amont_obj.innerText = data.count;
+
+			comments_obj.innerHTML = "";
+
+			comments.forEach((element) => {
+				comments_obj.innerHTML += `
+                    <div class="comment">
+                        <p><strong>Likes:</strong> ${element.likes}</p>
+                        <p><strong>Publicado em:</strong> ${element.published_at}</p>
+                        <p>${element.text}</p>
+                        <hr>
+                    </div>
+                    `;
+			});
+
+			document.getElementById("iframe").src = `https://www.youtube.com/embed/${data.video_id}`;
+			document.getElementById("video_title").textContent = data.title;
+			document.getElementById("channel_title").textContent = data.channel;
+			document.getElementById("time_spent").textContent = `Time spent: ${data.time_spent} seconds.`;
+		}
+
+		function submitForm() {
+			if (url_value != "") {
+				console.log("Sent");
+
+				fetch("{{ url_for('process_api') }}", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						url: url_value,
+					}),
+				})
+					.then((response) => {
+						console.log("Status:", response.status);
+						return response.json();
+					})
+					.then((data) => {
+						show_comments(data);
+					})
+					.catch((error) => {
+						console.error("Erro no fetch:", error);
+					});
+			}
+		}
+	</script>
+</html>
