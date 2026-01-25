@@ -1,5 +1,5 @@
 {
-    "cached_at": 1769358297.5041926,
+    "cached_at": 1769364841.0388734,
     "data": [
         {
             "text": "Hey Corey, I love that your videos are detailed and feel like something that one could learn by themselves. You are an excellent teacher. I've learned Django and Python because of you. The amount of details that you show in your tutorials helps me become more confident. Will you post videos relating to Machine Learning or Deep Neural Network using tensorflow? I am trying to find resources, but the official documentation is too much and the Harvard CS50 ones are really long and difficult to understand. Thank you.",
@@ -22,19 +22,14 @@
             "published_at": "2020-05-29T17:21:08Z"
         },
         {
-            "text": "Thanks. @Corey Schafer \nYou could also create a youtube playlist of this YT API series on your channel. That would make it easy to follow along in order, as with your other created playlists on your channel.",
-            "likes": 0,
-            "published_at": "2020-12-20T07:42:24Z"
-        },
-        {
-            "text": "Thank you, Corey, this is a very informative video! I'm interested in learning about the Wordpress API and I'm wondering if you can do a Wordpress API tutorial? Thank you!",
-            "likes": 0,
-            "published_at": "2020-06-28T01:22:59Z"
-        },
-        {
             "text": "Thanks for great video.. can you provide link for your further video",
             "likes": 0,
             "published_at": "2020-06-25T17:59:01Z"
+        },
+        {
+            "text": "Thanks. @Corey Schafer \nYou could also create a youtube playlist of this YT API series on your channel. That would make it easy to follow along in order, as with your other created playlists on your channel.",
+            "likes": 0,
+            "published_at": "2020-12-20T07:42:24Z"
         },
         {
             "text": "Bro if possible please make vedio on react",
@@ -42,14 +37,24 @@
             "published_at": "2020-06-11T12:27:09Z"
         },
         {
-            "text": "Hey, Corey! Thanks for the video. As always, very useful. Are you planning to show us how to upload videos do youtube?",
+            "text": "Thank you, Corey, this is a very informative video! I'm interested in learning about the Wordpress API and I'm wondering if you can do a Wordpress API tutorial? Thank you!",
             "likes": 0,
-            "published_at": "2020-05-31T16:15:23Z"
+            "published_at": "2020-06-28T01:22:59Z"
         },
         {
             "text": "Can you please make videos on machine learning.",
             "likes": 0,
             "published_at": "2020-06-09T07:51:44Z"
+        },
+        {
+            "text": "Hey, Corey! Thanks for the video. As always, very useful. Are you planning to show us how to upload videos do youtube?",
+            "likes": 0,
+            "published_at": "2020-05-31T16:15:23Z"
+        },
+        {
+            "text": "please make some video on how to subscribe a youtube channel from python script",
+            "likes": 0,
+            "published_at": "2020-05-29T20:04:39Z"
         },
         {
             "text": "Sir please make video on make api with django and testing it with postman or something like that",
@@ -62,19 +67,14 @@
             "published_at": "2020-08-11T01:08:02Z"
         },
         {
-            "text": "please make some video on how to subscribe a youtube channel from python script",
-            "likes": 0,
-            "published_at": "2020-05-29T20:04:39Z"
-        },
-        {
             "text": "Corey please do new Flask and Django  projects.",
             "likes": 0,
             "published_at": "2020-05-29T21:35:09Z"
         },
         {
-            "text": "hii corey , thank you for such great videos \ni had a request for you can you please create a video over django react framework ?",
+            "text": "Can you do a Django Rest Framework course?",
             "likes": 0,
-            "published_at": "2020-05-30T07:11:17Z"
+            "published_at": "2020-08-02T00:09:36Z"
         },
         {
             "text": "sir, can you make a video on functools module in python?",
@@ -82,9 +82,9 @@
             "published_at": "2020-06-01T12:36:14Z"
         },
         {
-            "text": "Can you do a Django Rest Framework course?",
+            "text": "hii corey , thank you for such great videos \ni had a request for you can you please create a video over django react framework ?",
             "likes": 0,
-            "published_at": "2020-08-02T00:09:36Z"
+            "published_at": "2020-05-30T07:11:17Z"
         },
         {
             "text": "This is unrelated but can you please do a video on the process of how to move a local Django project from one computer to another? I don't really see much information on the internet on how to do that.",
@@ -102,6 +102,11 @@
             "published_at": "2020-05-30T05:45:45Z"
         },
         {
+            "text": "I was wondering if you'd be able to python to automatically add videos with certain titles or made by a certain channel to a playlist? I'm still a bit of a noobie so I'm not entirely sure it's possible :/",
+            "likes": 0,
+            "published_at": "2021-04-28T19:55:52Z"
+        },
+        {
             "text": "Hey Corey! I am using what I have learnt in this video to download the transcripts of your playlist about DJANGO. But I am getting an error because this video (and maybe others) has no subtitles available: \"Python Django Tutorial: How to Use a Custom Domain Name for Our Application\". Would you tell me what should I do in this case? what code should I write to get the transcripts of the other videos which do have them, and avoid the error? Thanks!!",
             "likes": 0,
             "published_at": "2022-08-24T19:45:56Z"
@@ -115,6 +120,11 @@
             "text": "Corey, please tell me what are the benefits of joining this channel and paying that fees monthly. are there any better resources than what we have on your youtube channel for python and django.  DO you have any Udemy course on python?",
             "likes": 0,
             "published_at": "2020-05-31T23:43:58Z"
+        },
+        {
+            "text": "In some of your videos, I saw that you select multiple lines and instantly a # comes in front of the line. That means you comment some lines by selecting them and after some keyboard shortcuts, you comment them instantly. I want to know that keyboard shortcut. Please.",
+            "likes": 0,
+            "published_at": "2020-06-11T12:11:45Z"
         },
         {
             "text": "Is there maybe a simpler video that shows about getting a virtual environment working because I got stuck around the 8min mark not knowing what to do or where to go.",

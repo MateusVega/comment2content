@@ -56,77 +56,94 @@
 				</section>
 			</section>
 		</main>
-	</body>
 
-	<script>
-		const url_value = document.getElementById("url").value;
-		var progress = 0;
+		<script>
+			let progress = 0;
+			let source = null;
 
-		function update_bar(new_progress) {
-			const bar = document.getElementById("progress-done");
+			function update_bar(target) {
+				const bar = document.getElementById("progress-done");
 
-			const interval = setInterval(() => {
-				if (progress >= new_progress || progress >= 100) {
-					bar.classList.add("rounded-lg");
-					clearInterval(interval);
-				} else {
-					progress++;
-					bar.style.width = progress + "%";
-					bar.textContent = progress + "%";
-				}
-			});
-		}
+				const interval = setInterval(() => {
+					if (progress >= target || progress >= 100) {
+						clearInterval(interval);
+						if (progress >= 100) bar.classList.add("rounded-lg");
+					} else {
+						progress++;
+						bar.style.width = progress + "%";
+						bar.textContent = progress + "%";
+					}
+				}, 15);
+			}
 
-		function show_comments(data) {
-			const comments_section_obj = document.getElementById("comments_section");
-			const comments_amont_obj = document.getElementById("comments_amount");
-			const comments_obj = document.getElementById("comments");
+			function show_comments(data) {
+				const comments_section_obj = document.getElementById("comments_section");
+				const comments_amount_obj = document.getElementById("comments_amount");
+				const comments_obj = document.getElementById("comments");
 
-			const comments = data.comments;
+				comments_amount_obj.innerText = data.count;
+				comments_obj.innerHTML = "";
 
-			comments_amont_obj.innerText = data.count;
+				data.comments.forEach((element) => {
+					comments_obj.innerHTML += `
+				<div class="comment">
+					<p><strong>Likes:</strong> ${element.likes}</p>
+					<p><strong>Publicado em:</strong> ${element.published_at}</p>
+					<p>${element.text}</p>
+					<hr>
+				</div>
+			`;
+				});
 
-			comments_obj.innerHTML = "";
+				document.getElementById("iframe").src = `https://www.youtube.com/embed/${data.video_id}`;
+				document.getElementById("video_title").textContent = data.title;
+				document.getElementById("channel_title").textContent = data.channel;
+				document.getElementById("time_spent").textContent = `Time spent: ${data.time_spent} seconds.`;
+			}
 
-			comments.forEach((element) => {
-				comments_obj.innerHTML += `
-                    <div class="comment">
-                        <p><strong>Likes:</strong> ${element.likes}</p>
-                        <p><strong>Publicado em:</strong> ${element.published_at}</p>
-                        <p>${element.text}</p>
-                        <hr>
-                    </div>
-                    `;
-			});
-
-			document.getElementById("iframe").src = `https://www.youtube.com/embed/${data.video_id}`;
-			document.getElementById("video_title").textContent = data.title;
-			document.getElementById("channel_title").textContent = data.channel;
-			document.getElementById("time_spent").textContent = `Time spent: ${data.time_spent} seconds.`;
-		}
-
-		function submitForm() {
-			if (url_value != "") {
-				console.log("Sent");
-
+			function fetchResults(url_value) {
 				fetch("{{ url_for('process_api') }}", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						url: url_value,
-					}),
+					body: JSON.stringify({ url: url_value }),
 				})
-					.then((response) => {
-						console.log("Status:", response.status);
-						return response.json();
-					})
-					.then((data) => {
-						show_comments(data);
-					})
-					.catch((error) => {
-						console.error("Erro no fetch:", error);
-					});
+					.then((res) => res.json())
+					.then((data) => show_comments(data))
+					.catch((err) => console.error(err));
 			}
-		}
-	</script>
+
+			function submitForm() {
+				const url_value = document.getElementById("url").value;
+				if (!url_value) return;
+
+				// Reset bar
+				progress = 0;
+				const bar = document.getElementById("progress-done");
+				bar.style.width = "0%";
+				bar.textContent = "0%";
+				bar.classList.remove("rounded-lg");
+
+				// Close old SSE if exists
+				if (source) source.close();
+
+				// Start SSE
+				source = new EventSource(`/process_stream?url=${encodeURIComponent(url_value)}`);
+
+				source.onmessage = (e) => {
+					const value = parseInt(e.data);
+					update_bar(value);
+
+					if (value >= 100) {
+						source.close();
+						fetchResults(url_value);
+					}
+				};
+
+				source.onerror = () => {
+					console.error("SSE error");
+					source.close();
+				};
+			}
+		</script>
+	</body>
 </html>
