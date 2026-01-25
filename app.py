@@ -31,28 +31,6 @@ def process_api():
         "time_spent" : elapsed
     }
 
-@app.route("/process_stream")
-def process_stream():
-    url = request.args.get("url")
-    video_id = extract_video_id(url)
-
-    if not video_id:
-        return "data: error\n\n", 400
-
-    def generate():
-        def progress_cb(done, total):
-            percent = int(done / total * 100)
-            yield f"data: {percent}\n\n"
-
-        yield "data: 5\n\n"  # started
-
-        for _ in get_comments(video_id, max_comments=350, progress_cb=progress_cb):
-            pass
-
-        yield "data: 100\n\n"
-
-    return Response(generate(), mimetype="text/event-stream")
-
 if __name__ == "__main__":
     app.run(debug=True)
     # .\.venv\Scripts\activate

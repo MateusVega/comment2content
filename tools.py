@@ -155,10 +155,8 @@ def llm_is_recommendation(comment):
 
     return response["message"]["content"].strip().lower().startswith("true")
 
-def llm_classify_parallel(comments, workers=4, progress_cb=None):
+def llm_classify_parallel(comments, workers=4):
     results = []
-    total = len(comments)
-    done = 0
 
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {
@@ -167,19 +165,15 @@ def llm_classify_parallel(comments, workers=4, progress_cb=None):
         }
 
         for future in as_completed(futures):
-            done += 1
-            if progress_cb:
-                progress_cb(done, total)
-
             if future.result():
                 results.append(futures[future])
 
     return results
 
-def filter_comments(comments, progress_cb=None):
+def filter_comments(comments):
     comments = sorted(comments, key=lambda c: c["likes"], reverse=True)
     comments = remove_noise(comments)
-    filtered_comments = llm_classify_parallel(comments, progress_cb=progress_cb)
+    filtered_comments = llm_classify_parallel(comments)
     return filtered_comments
 
 # Cache Comments
@@ -215,7 +209,7 @@ def get_cached_video(video_id):
 
 # Main function
 
-def get_comments(video_id, max_comments, progress_cb=None):
+def get_comments(video_id, max_comments):
     title, channel = fetch_video_info(video_id)
 
     cached = get_cached_video(video_id)
@@ -223,7 +217,7 @@ def get_comments(video_id, max_comments, progress_cb=None):
         return cached, video_id, title, channel
 
     raw_comments = fetch_comments(video_id, max_comments=max_comments)
-    result = filter_comments(raw_comments, progress_cb)
+    result = filter_comments(raw_comments)
     caching_comments_with_json(video_id, result)
 
     return result, video_id, title, channel

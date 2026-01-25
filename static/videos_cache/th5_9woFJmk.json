@@ -1,5 +1,5 @@
 {
-    "cached_at": 1769364841.0388734,
+    "cached_at": 1769374763.2112072,
     "data": [
         {
             "text": "Hey Corey, I love that your videos are detailed and feel like something that one could learn by themselves. You are an excellent teacher. I've learned Django and Python because of you. The amount of details that you show in your tutorials helps me become more confident. Will you post videos relating to Machine Learning or Deep Neural Network using tensorflow? I am trying to find resources, but the official documentation is too much and the Harvard CS50 ones are really long and difficult to understand. Thank you.",
@@ -22,6 +22,16 @@
             "published_at": "2020-05-29T17:21:08Z"
         },
         {
+            "text": "Thank you, Corey, this is a very informative video! I'm interested in learning about the Wordpress API and I'm wondering if you can do a Wordpress API tutorial? Thank you!",
+            "likes": 0,
+            "published_at": "2020-06-28T01:22:59Z"
+        },
+        {
+            "text": "Hey, Corey! Thanks for the video. As always, very useful. Are you planning to show us how to upload videos do youtube?",
+            "likes": 0,
+            "published_at": "2020-05-31T16:15:23Z"
+        },
+        {
             "text": "Thanks for great video.. can you provide link for your further video",
             "likes": 0,
             "published_at": "2020-06-25T17:59:01Z"
@@ -37,29 +47,19 @@
             "published_at": "2020-06-11T12:27:09Z"
         },
         {
-            "text": "Thank you, Corey, this is a very informative video! I'm interested in learning about the Wordpress API and I'm wondering if you can do a Wordpress API tutorial? Thank you!",
-            "likes": 0,
-            "published_at": "2020-06-28T01:22:59Z"
-        },
-        {
             "text": "Can you please make videos on machine learning.",
             "likes": 0,
             "published_at": "2020-06-09T07:51:44Z"
         },
         {
-            "text": "Hey, Corey! Thanks for the video. As always, very useful. Are you planning to show us how to upload videos do youtube?",
-            "likes": 0,
-            "published_at": "2020-05-31T16:15:23Z"
-        },
-        {
-            "text": "please make some video on how to subscribe a youtube channel from python script",
-            "likes": 0,
-            "published_at": "2020-05-29T20:04:39Z"
-        },
-        {
             "text": "Sir please make video on make api with django and testing it with postman or something like that",
             "likes": 0,
             "published_at": "2020-05-29T16:24:29Z"
+        },
+        {
+            "text": "hii corey , thank you for such great videos \ni had a request for you can you please create a video over django react framework ?",
+            "likes": 0,
+            "published_at": "2020-05-30T07:11:17Z"
         },
         {
             "text": "hi very interesting video ,can you please make a video tutorial  for uploading multiple video from a folder on yoube with private status .",
@@ -72,9 +72,9 @@
             "published_at": "2020-05-29T21:35:09Z"
         },
         {
-            "text": "Can you do a Django Rest Framework course?",
+            "text": "please make some video on how to subscribe a youtube channel from python script",
             "likes": 0,
-            "published_at": "2020-08-02T00:09:36Z"
+            "published_at": "2020-05-29T20:04:39Z"
         },
         {
             "text": "sir, can you make a video on functools module in python?",
@@ -82,9 +82,9 @@
             "published_at": "2020-06-01T12:36:14Z"
         },
         {
-            "text": "hii corey , thank you for such great videos \ni had a request for you can you please create a video over django react framework ?",
+            "text": "Can you do a Django Rest Framework course?",
             "likes": 0,
-            "published_at": "2020-05-30T07:11:17Z"
+            "published_at": "2020-08-02T00:09:36Z"
         },
         {
             "text": "This is unrelated but can you please do a video on the process of how to move a local Django project from one computer to another? I don't really see much information on the internet on how to do that.",
@@ -100,11 +100,6 @@
             "text": "Is there any video to get statistics for a FB channels also ?\nPlease help",
             "likes": 0,
             "published_at": "2020-05-30T05:45:45Z"
-        },
-        {
-            "text": "I was wondering if you'd be able to python to automatically add videos with certain titles or made by a certain channel to a playlist? I'm still a bit of a noobie so I'm not entirely sure it's possible :/",
-            "likes": 0,
-            "published_at": "2021-04-28T19:55:52Z"
         },
         {
             "text": "Hey Corey! I am using what I have learnt in this video to download the transcripts of your playlist about DJANGO. But I am getting an error because this video (and maybe others) has no subtitles available: \"Python Django Tutorial: How to Use a Custom Domain Name for Our Application\". Would you tell me what should I do in this case? what code should I write to get the transcripts of the other videos which do have them, and avoid the error? Thanks!!",
