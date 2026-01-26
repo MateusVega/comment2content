@@ -1,5 +1,0 @@
-[ ] - Return TotalComments
-[ ] - Status certo
-[ ] - Limitar Usuario 3x
-[ ] - Melhorar como apresentar inventário
-[ ] - Try Except

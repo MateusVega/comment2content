@@ -18,6 +18,14 @@ def index():
 
 @app.route("/process_api", methods=["POST"])
 def process_api():
+    started_at = time.time()
+    data = request.get_json()
+    url = data.get("url")
+
+    video_id = extract_video_id(url)
+    if not video_id:
+        return {"error": "Invalid YouTube URL"}, 400
+
     """session.permanent = True
     today = date.today().isoformat()
     
@@ -28,15 +36,7 @@ def process_api():
     session["count"] += 1
 
     if session["count"] > 3:
-        abort(429)"""
-
-    started_at = time.time()
-    data = request.get_json()
-    url = data.get("url")
-
-    video_id = extract_video_id(url)
-    if not video_id:
-        return {"error": "Invalid YouTube URL"}, 400
+        return {"error": "You can analyze up to 3 videos per day. Try again tomorrow"}, 429"""
 
     comments, video_id, title, channel, total_comments_fetched = get_comments(video_id, max_comments=350)
 

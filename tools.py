@@ -67,7 +67,7 @@ def fetch_video_info(video_id):
     response = request.execute()
 
     if not response["items"]:
-        raise ValueError("Vídeo não encontrado ou ID inválido")
+        return {"error": "Invalid YouTube URL"}, 400
 
     snippet = response["items"][0]["snippet"]
     title = snippet["title"]
@@ -134,7 +134,9 @@ def llm_is_recommendation(comment):
 
         Return True ONLY if it requests or suggests specific future content
         (e.g. "make a video about X", "cover Y", "do a series on Z").
-
+        The request must include:
+        - a clear topic, format, collaboration, or continuation
+        - at least one concrete detail (topic, person, skill, or concept)
         Praise, opinions, or hype without a specific topic → False.
         Any language allowed.
 

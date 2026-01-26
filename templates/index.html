@@ -53,7 +53,7 @@
 
 				<section id="comments_section" class="flex flex-col gap-4 bg-gray-50 rounded-xl p-6 shadow-sm">
 					<h2 class="text-3xl font-bold text-red-600">Suggestions</h2>
-					<p class="text-gray-600">Comments: <span id="comments_amount" class="font-bold text-red-600">0</span></p>
+					<p class="text-gray-600">Raw comments: <span id="comments_amount" class="font-bold text-red-600">0</span></p>
 					<ul id="comments" class="flex flex-col gap-4"></ul>
 				</section>
 			</section>
@@ -83,26 +83,47 @@
 				const comments_amount_obj = document.getElementById("comments_amount");
 				const comments_obj = document.getElementById("comments");
 
-				comments_amount_obj.innerText = data.count;
-				comments_obj.innerHTML = "";
+				comments_amount_obj.textContent = data.count;
+				comments_obj.textContent = "";
 
 				data.comments.forEach((element) => {
+					date = new Date(element.published_at);
+
+					formated_date = date.toLocaleString("en-US", {
+						dateStyle: "medium",
+						timeStyle: "short",
+					});
+
 					comments_obj.innerHTML += `
-				<div class="comment">
-					<p><strong>Likes:</strong> ${element.likes}</p>
-					<p><strong>Publicado em:</strong> ${element.published_at}</p>
-					<p>${element.text}</p>
-					<hr>
-				</div>
-			`;
+                        <div class="comment bg-white rounded-lg border border-gray-200 p-4 space-y-2">
+                            <p class="text-sm text-gray-500"><strong class="font-medium text-gray-700">Likes:</strong> ${element.likes}</p>
+                            <p class="text-sm text-gray-500"><strong class="font-medium text-gray-700">Publicado em:</strong> ${formated_date}</p>
+                            <p class="text-gray-800 text-sm leading-relaxed">${element.text}</p>
+                        </div>
+                    `;
 				});
+
+				if (data.comments.length == 0) {
+					comments_obj.innerHTML += "<p class='text-gray-800 text-sm leading-relaxed'>No ideas found from the comments.</p>";
+				}
 
 				document.getElementById("iframe").src = `https://www.youtube.com/embed/${data.video_id}`;
 				document.getElementById("video_title").textContent = data.title;
 				document.getElementById("channel_title").textContent = data.channel;
 				document.getElementById("time_spent").textContent = `Time spent: ${data.time_spent} seconds.`;
-				document.getElementById("total_comments_fetched").textContent = `Total comments fetched: ${data.total_comments_fetched}.`;
+				document.getElementById("total_comments_fetched").textContent = `Total comments analyzed: ${data.total_comments_fetched}.`;
 				document.getElementById("ideas_found").textContent = `Ideas found: ${data.count}.`;
+			}
+
+			function hide_all() {
+				document.getElementById("comments_amount").textContent = "0";
+				document.getElementById("comments").innerHTML = "";
+				document.getElementById("iframe").src = "";
+				document.getElementById("video_title").textContent = "";
+				document.getElementById("channel_title").textContent = "";
+				document.getElementById("time_spent").textContent = "";
+				document.getElementById("total_comments_fetched").textContent = "";
+				document.getElementById("ideas_found").textContent = "";
 			}
 
 			function fetchResults(url_value) {
@@ -111,9 +132,19 @@
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ url: url_value }),
 				})
-					.then((res) => res.json())
-					.then((data) => show_comments(data))
-					.catch((err) => console.error(err));
+					.then(async (res) => {
+						const data = await res.json();
+						if (!res.ok) {
+							alert(data.error || "Erro inesperado");
+							return;
+						}
+						hide_all();
+						show_comments(data);
+					})
+					.catch((err) => {
+						alert("Erro de conexão com o servidor");
+						console.error(err);
+					});
 			}
 
 			function submitForm() {
