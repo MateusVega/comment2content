@@ -34,7 +34,7 @@
 				<div class="w-full bg-gray-200 rounded-full overflow-hidden h-6">
 					<div id="progress-done" class="h-full w-0 bg-red-600 text-white text-sm font-bold flex items-center justify-center transition-all duration-500"></div>
 				</div>
-				<p class="text-center text-gray-500 animate-pulse">Analyzing...</p>
+				<p id="status_text" class="text-center text-gray-500 animate-pulse">Analyzing...</p>
 			</section>
 			<section id="result" class="grid grid-cols-1 md:grid-cols-2 gap-8">
 				<section class="flex flex-col gap-4">
@@ -61,10 +61,10 @@
 
 		<script>
 			let progress = 0;
-			let source = null;
 
 			function update_bar(target) {
 				const bar = document.getElementById("progress-done");
+				const status_text = document.getElementById("status_text");
 
 				const interval = setInterval(() => {
 					if (progress >= target || progress >= 100) {
@@ -74,6 +74,22 @@
 						progress++;
 						bar.style.width = progress + "%";
 						bar.textContent = progress + "%";
+
+						if (progress == 5) {
+							status_text.textContent = "Analyzing video";
+						} else if (progress == 10) {
+							status_text.textContent = "Getting channel info";
+						} else if (progress == 15) {
+							status_text.textContent = "Looking for existing results";
+						} else if (progress == 20) {
+							status_text.textContent = "Reading audience comments";
+						} else if (progress > 20 && progress < 90) {
+							status_text.textContent = "Analyzing comments with AI";
+						} else if (progress == 90) {
+							status_text.textContent = "Preparing insights"; // Caching comments into json
+						} else if (progress == 100) {
+							status_text.textContent = "Ready";
+						}
 					}
 				}, 15);
 			}
@@ -95,12 +111,12 @@
 					});
 
 					comments_obj.innerHTML += `
-                        <div class="comment bg-white rounded-lg border border-gray-200 p-4 space-y-2">
-                            <p class="text-sm text-gray-500"><strong class="font-medium text-gray-700">Likes:</strong> ${element.likes}</p>
-                            <p class="text-sm text-gray-500"><strong class="font-medium text-gray-700">Publicado em:</strong> ${formated_date}</p>
-                            <p class="text-gray-800 text-sm leading-relaxed">${element.text}</p>
-                        </div>
-                    `;
+			                     <div class="comment bg-white rounded-lg border border-gray-200 p-4 space-y-2">
+			                         <p class="text-sm text-gray-500"><strong class="font-medium text-gray-700">Likes:</strong> ${element.likes}</p>
+			                         <p class="text-sm text-gray-500"><strong class="font-medium text-gray-700">Publicado em:</strong> ${formated_date}</p>
+			                         <p class="text-gray-800 text-sm leading-relaxed">${element.text}</p>
+			                     </div>
+			                 `;
 				});
 
 				if (data.comments.length == 0) {
@@ -157,6 +173,12 @@
 				bar.textContent = "0%";
 				bar.classList.remove("rounded-lg");
 			}
+
+			const sse = new EventSource("/stream");
+
+			sse.addEventListener("status", (e) => {
+				update_bar(e.data);
+			});
 		</script>
 	</body>
 </html>

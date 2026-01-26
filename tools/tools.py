@@ -7,6 +7,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from urllib.parse import urlparse, parse_qs
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from tools.sse import push_event
 
 load_dotenv()
 cwd = os.getcwd()
@@ -128,7 +129,9 @@ def remove_noise(comments):
 
     return suggestions, grouped_ideas
 
+
 def llm_is_recommendation(comment):
+
     prompt = f"""
         Classify the comment.
 
@@ -148,7 +151,6 @@ def llm_is_recommendation(comment):
         Comment: "{comment}"
     """
 
-
     response = ollama.chat(
         model="qwen2.5:3b",
         messages=[{"role": "user", "content": prompt}],
@@ -157,8 +159,11 @@ def llm_is_recommendation(comment):
 
     return response["message"]["content"].strip().lower().startswith("true")
 
+
 def llm_classify_parallel(comments, workers=4):
     results = []
+
+    completed = 0
 
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {
@@ -167,6 +172,8 @@ def llm_classify_parallel(comments, workers=4):
         }
 
         for future in as_completed(futures):
+            completed += 1
+            push_event(20 + (68 * completed / len(comments)), event="status")
             if future.result():
                 results.append(futures[future])
 
@@ -213,14 +220,20 @@ def get_cached_video(video_id):
 # Main function
 
 def get_comments(video_id, max_comments):
+    push_event(10, event="status")
     title, channel = fetch_video_info(video_id)
 
+    push_event(15, event="status")
     cached, total_comments_fetched = get_cached_video(video_id)
     if cached is not None:
+        push_event(100, event="status")
         return cached, video_id, title, channel, total_comments_fetched
-
+    
+    push_event(20, event="status")
     raw_comments, total_comments_fetched = fetch_comments(video_id, max_comments=max_comments)
     result = filter_comments(raw_comments)
+    push_event(90, event="status")
     caching_comments_with_json(video_id, result, total_comments_fetched)
 
+    push_event(100, event="status")
     return result, video_id, title, channel, total_comments_fetched
