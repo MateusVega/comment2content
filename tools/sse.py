@@ -1,6 +1,11 @@
 import queue
 
-event_queue = queue.Queue()
+queues = {}
 
-def push_event(data, event="message"):
-    event_queue.put((event, data))
+def get_queue(user_id):
+    if user_id not in queues:
+        queues[user_id] = queue.Queue()
+    return queues[user_id]
+
+def push_event(user_id, data, event="message"):
+    get_queue(user_id).put((event, data))

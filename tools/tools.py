@@ -8,6 +8,7 @@ from googleapiclient.errors import HttpError
 from urllib.parse import urlparse, parse_qs
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tools.sse import push_event
+from flask import session
 
 load_dotenv()
 cwd = os.getcwd()
@@ -173,7 +174,7 @@ def llm_classify_parallel(comments, workers=4):
 
         for future in as_completed(futures):
             completed += 1
-            push_event(20 + (68 * completed / len(comments)), event="status")
+            push_event(session["user_id"], (20 + (68 * completed / len(comments))), event="status")
             if future.result():
                 results.append(futures[future])
 
@@ -220,20 +221,20 @@ def get_cached_video(video_id):
 # Main function
 
 def get_comments(video_id, max_comments):
-    push_event(10, event="status")
+    push_event(session["user_id"], 10, event="status")
     title, channel = fetch_video_info(video_id)
 
-    push_event(15, event="status")
+    push_event(session["user_id"], 15, event="status")
     cached, total_comments_fetched = get_cached_video(video_id)
     if cached is not None:
-        push_event(100, event="status")
+        push_event(session["user_id"], 100, event="status")
         return cached, video_id, title, channel, total_comments_fetched
     
-    push_event(20, event="status")
+    push_event(session["user_id"], 20, event="status")
     raw_comments, total_comments_fetched = fetch_comments(video_id, max_comments=max_comments)
     result = filter_comments(raw_comments)
-    push_event(90, event="status")
+    push_event(session["user_id"], 90, event="status")
     caching_comments_with_json(video_id, result, total_comments_fetched)
 
-    push_event(100, event="status")
+    push_event(session["user_id"], 100, event="status")
     return result, video_id, title, channel, total_comments_fetched

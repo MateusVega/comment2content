@@ -1,10 +1,11 @@
 from datetime import date, timedelta
+import uuid
 import os
 from dotenv import load_dotenv
 import time
 from tools.tools import get_comments, extract_video_id
-from tools.sse import event_queue, push_event
-from flask import Flask, render_template, request, url_for, session, abort, Response
+from tools.sse import get_queue, push_event
+from flask import Flask, render_template, request, url_for, session, Response
 
 load_dotenv()
 
@@ -13,18 +14,25 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY_SK")
 app.permanent_session_lifetime = timedelta(days=1)
 
-def event_stream():
+def event_stream(user_id):
+    q = get_queue(user_id)
     while True:
-        event, data = event_queue.get()
+        event, data = q.get()
         yield f"event: {event}\ndata: {data}\n\n"
 
+@app.route("/stream")
 def sse_route():
-    return Response(event_stream(), mimetype="text/event-stream")
+    return Response(
+        event_stream(session["user_id"]),
+        mimetype="text/event-stream"
+    )
 
 app.add_url_rule("/stream", view_func=sse_route)
 
 @app.route("/")
 def index():
+    if not session.get('user_id'):
+        session['user_id'] = str(uuid.uuid4())
     return render_template("index.html", description="Play the Valorant Most Kill Team game and achieve the highest score! Test your skills and compete for the top spot.")
 
 @app.route("/process_api", methods=["POST"])
@@ -33,7 +41,7 @@ def process_api():
     data = request.get_json()
     url = data.get("url")
 
-    push_event(5, event="status")
+    push_event(session["user_id"], 5, event="status")
 
     video_id = extract_video_id(url)
     if not video_id:
@@ -46,6 +54,7 @@ def process_api():
         session["day"] = today
         session["count"] = 0
 
+    session["count"] = 0
     session["count"] += 1
 
     if session["count"] > 3:
