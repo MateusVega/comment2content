@@ -23,6 +23,8 @@ if not api_key:
 
 youtube = build("youtube", "v3", developerKey=api_key)
 
+user_id = None
+
 # Fetch Comments
 
 def fetch_comments(video_id, max_comments=200):
@@ -112,24 +114,6 @@ def remove_noise(comments):
 
     return clean
 
-    suggestions = []
-    grouped_ideas = []
-
-    for i in range(0, len(comments), batch_size):
-        batch = comments[i:i + batch_size]
-        texts = [c["text"] for c in batch]
-
-        result = llm_classify_batch(texts)
-
-        # collect filtered comments
-    for idx in result.get("suggestions", []):
-        if 0 <= idx < len(batch):
-            suggestions.append(batch[idx])
-
-        grouped_ideas.extend(result.get("grouped_ideas", []))
-
-    return suggestions, grouped_ideas
-
 
 def llm_is_recommendation(comment):
 
@@ -162,6 +146,7 @@ def llm_is_recommendation(comment):
 
 
 def llm_classify_parallel(comments, workers=4):
+    global user_id
     results = []
 
     completed = 0
@@ -174,7 +159,7 @@ def llm_classify_parallel(comments, workers=4):
 
         for future in as_completed(futures):
             completed += 1
-            push_event(session["user_id"], (20 + (68 * completed / len(comments))), event="status")
+            push_event(user_id, (20 + (68 * completed / len(comments))), event="status")
             if future.result():
                 results.append(futures[future])
 
@@ -221,20 +206,23 @@ def get_cached_video(video_id):
 # Main function
 
 def get_comments(video_id, max_comments):
-    push_event(session["user_id"], 10, event="status")
+    global user_id
+    user_id = session["user_id"]
+
+    push_event(user_id, 10, event="status")
     title, channel = fetch_video_info(video_id)
 
-    push_event(session["user_id"], 15, event="status")
+    push_event(user_id, 15, event="status")
     cached, total_comments_fetched = get_cached_video(video_id)
     if cached is not None:
-        push_event(session["user_id"], 100, event="status")
+        push_event(user_id, 100, event="status")
         return cached, video_id, title, channel, total_comments_fetched
     
-    push_event(session["user_id"], 20, event="status")
+    push_event(user_id, 20, event="status")
     raw_comments, total_comments_fetched = fetch_comments(video_id, max_comments=max_comments)
     result = filter_comments(raw_comments)
-    push_event(session["user_id"], 90, event="status")
+    push_event(user_id, 90, event="status")
     caching_comments_with_json(video_id, result, total_comments_fetched)
 
-    push_event(session["user_id"], 100, event="status")
+    push_event(user_id, 100, event="status")
     return result, video_id, title, channel, total_comments_fetched

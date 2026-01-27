@@ -14,6 +14,8 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY_SK")
 app.permanent_session_lifetime = timedelta(days=1)
 
+user_id = None
+
 def event_stream(user_id):
     q = get_queue(user_id)
     while True:
@@ -31,17 +33,20 @@ app.add_url_rule("/stream", view_func=sse_route)
 
 @app.route("/")
 def index():
+    global user_id
     if not session.get('user_id'):
         session['user_id'] = str(uuid.uuid4())
+        user_id = session['user_id']
     return render_template("index.html", description="Play the Valorant Most Kill Team game and achieve the highest score! Test your skills and compete for the top spot.")
 
 @app.route("/process_api", methods=["POST"])
 def process_api():
+    global user_id
     started_at = time.time()
     data = request.get_json()
     url = data.get("url")
 
-    push_event(session["user_id"], 5, event="status")
+    push_event(user_id, 5, event="status")
 
     video_id = extract_video_id(url)
     if not video_id:
