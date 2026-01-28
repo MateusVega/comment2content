@@ -181,7 +181,11 @@ def caching_comments_with_json(video_id, comments, total_comments_fetched):
         "data" : comments
     }
 
-    with open(os.path.join(cwd, "static", "videos_cache", f"{video_id}.json"), 'w') as json_file:
+    cache_dir = os.path.join(cwd, "static", "videos_cache")
+
+    os.makedirs(cache_dir, exist_ok=True)
+
+    with open(os.path.join(cache_dir, f"{video_id}.json"), 'w') as json_file:
         json.dump(cache_comments, json_file, indent=4)
 
 def video_cached(video_id):
