@@ -3,6 +3,7 @@ import time
 import json
 import ollama
 from dotenv import load_dotenv
+import httplib2
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from urllib.parse import urlparse, parse_qs
@@ -21,7 +22,7 @@ api_key = os.getenv("YOUTUBE_API_KEY")
 if not api_key:
     raise RuntimeError("YOUTUBE_API_KEY not defined.")
 
-youtube = build("youtube", "v3", developerKey=api_key)
+youtube = build("youtube", "v3", developerKey=api_key, http=httplib2.Http(timeout=30))
 
 user_id = None
 
@@ -121,7 +122,7 @@ def llm_is_recommendation(comment):
         Classify the comment.
 
         Return True ONLY if it requests or suggests specific future content
-        (e.g. "make a video about X", "cover Y", "do a series on Z").
+        (e.g. "make a video about X", "cover Y", "do a series on Z", "make a review about w").
         The request must include:
         - a clear topic, format, collaboration, or continuation
         - at least one concrete detail (topic, person, skill, or concept)

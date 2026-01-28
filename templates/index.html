@@ -26,15 +26,28 @@
 					id="url"
 					autocomplete="off"
 					placeholder="https://www.youtube.com/watch?v=..."
-					value="https://www.youtube.com/watch?v=th5_9woFJmk"
 				/>
-				<button onclick="submitForm()" class="bg-red-600 hover:bg-red-700 active:scale-95 transition text-white font-bold px-8 py-3 rounded-xl shadow-md">Discover</button>
+				<button
+					id="submitButton"
+					onclick="submitForm()"
+					class="bg-red-600 hover:bg-red-700 disabled:bg-red-700 disabled:cursor-not-allowed disabled:opacity-70 active:scale-95 transition text-white font-bold px-8 py-3 rounded-xl shadow-md"
+				>
+					Discover
+				</button>
+				<button
+					id="cancelButton"
+					onclick="stopOperation()"
+					style="display: none"
+					class="bg-red-600 hover:bg-red-700 disabled:bg-red-700 disabled:cursor-not-allowed disabled:opacity-70 active:scale-95 transition text-white font-bold px-8 py-3 rounded-xl shadow-md"
+				>
+					Cancel
+				</button>
 			</section>
 			<section id="status" class="flex flex-col gap-3">
 				<div class="w-full bg-gray-200 rounded-full overflow-hidden h-6">
 					<div id="progress-done" class="h-full w-0 bg-red-600 text-white text-sm font-bold flex items-center justify-center transition-all duration-500"></div>
 				</div>
-				<p id="status_text" class="text-center text-gray-500 animate-pulse">Analyzing...</p>
+				<p id="status_text" class="text-center text-gray-500 animate-pulse">Waiting for url...</p>
 			</section>
 			<section id="result" class="grid grid-cols-1 md:grid-cols-2 gap-8">
 				<section class="flex flex-col gap-4">
@@ -60,36 +73,41 @@
 		</main>
 
 		<script>
+			const cancel_button = document.getElementById("cancelButton");
+
 			let progress = 0;
+			let progressInterval = null;
+			let isCancelled = false;
+
+			let fetchController = null;
 
 			function update_bar(target) {
+				if (isCancelled) return;
+
 				const bar = document.getElementById("progress-done");
 				const status_text = document.getElementById("status_text");
 
-				const interval = setInterval(() => {
-					if (progress >= target || progress >= 100) {
-						clearInterval(interval);
+				clearInterval(progressInterval);
+				progressInterval = setInterval(() => {
+					if (isCancelled || progress >= target || progress >= 100) {
+						clearInterval(progressInterval);
 						if (progress >= 100) bar.classList.add("rounded-lg");
-					} else {
-						progress++;
-						bar.style.width = progress + "%";
-						bar.textContent = progress + "%";
+						return;
+					}
 
-						if (progress == 5) {
-							status_text.textContent = "Analyzing video";
-						} else if (progress == 10) {
-							status_text.textContent = "Getting channel info";
-						} else if (progress == 15) {
-							status_text.textContent = "Looking for existing results";
-						} else if (progress == 20) {
-							status_text.textContent = "Reading audience comments";
-						} else if (progress > 20 && progress < 90) {
-							status_text.textContent = "Analyzing comments with AI";
-						} else if (progress == 90) {
-							status_text.textContent = "Preparing insights"; // Caching comments into json
-						} else if (progress == 100) {
-							status_text.textContent = "Ready";
-						}
+					progress++;
+					bar.style.width = progress + "%";
+					bar.textContent = progress + "%";
+
+					if (progress == 5) status_text.textContent = "Analyzing video...";
+					else if (progress == 10) status_text.textContent = "Getting channel info...";
+					else if (progress == 15) status_text.textContent = "Looking for existing results...";
+					else if (progress == 20) status_text.textContent = "Reading audience comments...";
+					else if (progress > 20 && progress < 90) status_text.textContent = "Analyzing comments with AI...";
+					else if (progress == 90) status_text.textContent = "Preparing insights...";
+					else if (progress == 100) {
+						status_text.textContent = "Ready";
+						cancel_button.style.display = "none";
 					}
 				}, 15);
 			}
@@ -129,6 +147,8 @@
 				document.getElementById("time_spent").textContent = `Time spent: ${data.time_spent} seconds.`;
 				document.getElementById("total_comments_fetched").textContent = `Total comments analyzed: ${data.total_comments_fetched}.`;
 				document.getElementById("ideas_found").textContent = `Ideas found: ${data.count}.`;
+
+				document.getElementById("submitButton").disabled = false;
 			}
 
 			function hide_all() {
@@ -143,10 +163,13 @@
 			}
 
 			function fetchResults(url_value) {
+				fetchController = new AbortController();
+
 				fetch("{{ url_for('process_api') }}", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ url: url_value }),
+					signal: fetchController.signal,
 				})
 					.then(async (res) => {
 						const data = await res.json();
@@ -154,15 +177,19 @@
 							alert(data.error || "Erro inesperado");
 							return;
 						}
-						show_comments(data);
+						if (!isCancelled) show_comments(data);
 					})
 					.catch((err) => {
-						alert("Erro de conexão com o servidor");
-						console.error(err);
+						if (err.name !== "AbortError") {
+							alert("Erro de conexão com o servidor");
+							console.error(err);
+						}
 					});
 			}
 
 			function submitForm() {
+				isCancelled = false;
+				document.getElementById("submitButton").disabled = true;
 				const url_value = document.getElementById("url").value;
 				if (!url_value) return;
 				fetchResults(url_value);
@@ -172,6 +199,27 @@
 				bar.style.width = "0%";
 				bar.textContent = "0%";
 				bar.classList.remove("rounded-lg");
+				cancel_button.style.display = "inline-block";
+			}
+
+			function stopOperation() {
+				isCancelled = true;
+
+				clearInterval(progressInterval);
+
+				if (fetchController) {
+					fetchController.abort();
+					fetchController = null;
+				}
+
+				progress = 0;
+				document.getElementById("progress-done").style.width = "0%";
+				document.getElementById("progress-done").textContent = "Cancelled";
+				document.getElementById("submitButton").disabled = false;
+				hide_all();
+				cancel_button.style.display = "none";
+
+				document.getElementById("status_text").textContent = "Waiting for url...";
 			}
 
 			const sse = new EventSource("/stream");
